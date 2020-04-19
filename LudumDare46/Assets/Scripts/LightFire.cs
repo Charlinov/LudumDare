@@ -16,12 +16,15 @@ public class LightFire : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            RaycastHit2D[] hit2Ds = Physics2D.CircleCastAll(transform.position, radius, Vector2.right);
+            Debug.Log("Space");
+            RaycastHit2D[] hit2Ds = Physics2D.CircleCastAll(transform.position, radius, Vector2.right, radius);
             foreach(RaycastHit2D hit in hit2Ds)
             {
-                if(hit.transform.CompareTag("Fire"))
+                Debug.Log("Hit shit");
+                if(hit.transform.CompareTag("FireSpot"))
                 {
-                    hit.transform.GetComponent<FireStartArea>().LightFire();
+                    Debug.Log("FireSpot");
+                    hit.transform.GetComponent<Lightable>().LightFire();
                 }
             }
         }

@@ -10,8 +10,11 @@ public class GlobalBlackBoard : MonoBehaviour
     [SerializeField]
     private float heatMapFalloff;
 
-    private int score;
-    private int scoreDelta;
+    public float scoreDelta;
+
+    public Transform player;
+
+    private List<Transform> firePositions = new List<Transform>();
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +43,7 @@ public class GlobalBlackBoard : MonoBehaviour
                 heatMap[i, j] = Mathf.Max(0.0f, heatMap[i,j] - (Time.deltaTime * heatMapFalloff));
             }
         }
-        score += scoreDelta;
+        scoreDelta *= Time.deltaTime;
     }
 
     public void AddHeat(Vector3 position)
@@ -58,6 +61,33 @@ public class GlobalBlackBoard : MonoBehaviour
 
         heatMap[(int)gridSpace.x + 1, (int)gridSpace.y] = 1;        // middle right
         heatMap[(int)gridSpace.x - 1, (int)gridSpace.y] = 1;        // middle left
+    }
+
+    public void AddFire(Transform fire)
+    {
+        firePositions.Add(fire);
+    }
+
+    public void RemoveFire(Transform fire)
+    {
+        firePositions.Remove(fire);
+    }
+
+    public Transform getClosestFire(Vector3 position)
+    {
+        float dist = 1000000f;
+        Transform nearestFire = null;
+
+        foreach(Transform fire in firePositions)
+        {
+            if(Vector2.Distance(position, fire.position) < dist)
+            {
+                dist = Vector2.Distance(position, fire.position);
+                nearestFire = fire;
+            }
+        }
+
+        return nearestFire;
     }
 
     private void OnDrawGizmosSelected()
@@ -106,6 +136,10 @@ public class GlobalBlackBoard : MonoBehaviour
         return worldSpace;
     }
 
+    public Transform getPlayer()
+    {
+        return player;
+    }
 
     private float Map(float s, float a1, float a2, float b1, float b2)
     {

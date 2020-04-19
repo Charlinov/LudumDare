@@ -30,7 +30,7 @@ public class TopDownMovement : MonoBehaviour
 
         direction.Normalize();
 
-        rb.velocity = direction * speed * Time.deltaTime;
+        rb.velocity = direction * speed;
 
         Vector3 dir = Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position);
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
