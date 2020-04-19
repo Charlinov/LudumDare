@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Fire
   - GBB
+  - FireSpot
+  - HidingSpot
   layers:
   - Default
   - TransparentFX
@@ -15,9 +17,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - HidingSpot
   - 
   - 
   - 
