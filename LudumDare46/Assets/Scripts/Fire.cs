@@ -12,7 +12,8 @@ public class Fire : MonoBehaviour
     public float fireRadius = 0.5f;
     public float fireGrowMod = 0.2f;
 
-    // scale between 0.5 and 1.7 over time
+    public float fireLifeTime = 10f;
+    private float fireLifeTimer;
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +21,7 @@ public class Fire : MonoBehaviour
         attachedLight = GetComponent<Light2D>();
         gbb = GameObject.FindGameObjectWithTag("GBB").GetComponent<GlobalBlackBoard>();
         transform.localScale = new Vector3(fireRadius, fireRadius, 1f);
+        fireLifeTimer = fireLifeTime;
     }
 
     // Update is called once per frame
@@ -48,9 +50,22 @@ public class Fire : MonoBehaviour
 
         fireRadius = Mathf.Min(1.7f, fireRadius + (Time.deltaTime * fireGrowMod));
         transform.localScale = new Vector3(fireRadius, fireRadius, 1f);
+
+        fireLifeTimer -= Time.deltaTime;
+        if(fireLifeTimer <= 0)
+        {
+            Burn();
+        }
     }
 
     public void Extinguish()
+    {
+        gbb.RemoveFire(transform);
+        transform.parent.GetComponent<Lightable>().Extinguish();
+        Destroy(gameObject);
+    }
+
+    public void Burn()
     {
         gbb.RemoveFire(transform);
         transform.parent.GetComponent<Lightable>().Extinguish();

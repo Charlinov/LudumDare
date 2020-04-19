@@ -5,6 +5,8 @@ using UnityEngine;
 public class LightFire : MonoBehaviour
 {
     public float radius;
+
+    public GameObject canvas;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,8 +28,21 @@ public class LightFire : MonoBehaviour
                     Debug.Log("FireSpot");
                     hit.transform.GetComponent<Lightable>().LightFire();
                 }
+                else if(hit.transform.CompareTag("Stairs"))
+                {
+                    canvas.GetComponent<Animator>().SetTrigger("UseStairs");
+                    StartCoroutine(useStairs(hit.transform.gameObject));
+                }
             }
         }
+    }
+
+    private IEnumerator useStairs(GameObject stairs)
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        // go to the point
+        transform.parent.parent.position = stairs.GetComponent<Stairs>().TravelPoint.position;
     }
 
     private void OnDrawGizmos()
