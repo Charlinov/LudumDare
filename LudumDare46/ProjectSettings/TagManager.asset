@@ -8,6 +8,8 @@ TagManager:
   - GBB
   - FireSpot
   - HidingSpot
+  - FireFighter
+  - Stairs
   layers:
   - Default
   - TransparentFX

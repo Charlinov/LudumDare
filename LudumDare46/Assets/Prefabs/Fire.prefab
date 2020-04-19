@@ -159,3 +159,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRadius: 0.5
   fireGrowMod: 0.2
+  fireLifeTime: 10
