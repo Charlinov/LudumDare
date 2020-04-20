@@ -14,6 +14,7 @@ public class FireFighterLogic : MonoBehaviour
 
     public float Speed;
     public float extinguishRadius;
+    private bool extinguishing = false;
 
     private float fireTimeout = 5f;
     private float fireTimeoutTimer;
@@ -21,6 +22,7 @@ public class FireFighterLogic : MonoBehaviour
 
     public float playerSpotRadius;
     public float playerStopChaseRadius;
+    public float playerCatchRadius;
 
     private Transform player;
 
@@ -29,6 +31,11 @@ public class FireFighterLogic : MonoBehaviour
     public Transform path;
     private List<Transform> PatrolRoute = new List<Transform>();
     private int patrolIndex = 0;
+
+    private GameControl GC;
+
+
+    public Animator anim;
 
     enum States
     {
@@ -44,6 +51,7 @@ public class FireFighterLogic : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         gbb = GameObject.FindGameObjectWithTag("GBB").GetComponent<GlobalBlackBoard>();
         player = gbb.getPlayer();
+        GC = GameObject.FindGameObjectWithTag("GC").GetComponent<GameControl>();
 
         foreach(Transform child in path)
         {
@@ -110,10 +118,8 @@ public class FireFighterLogic : MonoBehaviour
                 LookAtPoint(closestFire.position);
                 if (Vector2.Distance(closestFire.position, transform.position) < extinguishRadius)
                 {
-                    // play an animation
-                    Extinguish(); // call this from an animation event
-
-                    state = States.IDLE;
+                    if(!extinguishing)
+                        StartCoroutine(Extinguish());
                 }
             }
         }
@@ -130,6 +136,12 @@ public class FireFighterLogic : MonoBehaviour
                     moveDir = (player.position - transform.position).normalized;
 
                     LookAtPoint(player.position);
+
+                    Debug.Log(Vector2.Distance(transform.position, player.position));
+                    if(Vector2.Distance(transform.position, player.position) < playerCatchRadius)
+                    {
+                        GC.EndGame();
+                    }
                 }
                 else
                 {
@@ -148,6 +160,7 @@ public class FireFighterLogic : MonoBehaviour
         }
 
         rb.velocity = moveDir * Speed;
+        anim.SetFloat("Speed", rb.velocity.magnitude);
 
         fireTimeoutTimer -= Time.deltaTime;
     }
@@ -177,10 +190,20 @@ public class FireFighterLogic : MonoBehaviour
         patrolIndex = closestIndex;
     }
 
-    public void Extinguish()
+    private IEnumerator Extinguish()
     {
-        closestFire.GetComponent<Fire>().Extinguish();
+        extinguishing = true;
+        anim.SetTrigger("Extinguish");
+        Debug.Log("Started extinguishing");
         moveDir = new Vector2(0, 0);
+        yield return new WaitForSeconds(1f);
+        if(closestFire)
+        {
+            closestFire.GetComponent<Fire>().Extinguish();
+            Debug.Log("Extinguished ONE fire");
+        }
+        extinguishing = false;
+        state = States.IDLE;
     }
 
     private void OnDrawGizmosSelected()

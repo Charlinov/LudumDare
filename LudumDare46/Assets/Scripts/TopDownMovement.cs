@@ -13,6 +13,10 @@ public class TopDownMovement : MonoBehaviour
 
     private GlobalBlackBoard gbb;
 
+    public Animator anim;
+
+    public LightFire LF;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,13 +35,15 @@ public class TopDownMovement : MonoBehaviour
         direction.Normalize();
 
         rb.velocity = direction * speed;
+        LF.setTDMSpeed(rb.velocity.magnitude);
+        anim.SetFloat("Speed", rb.velocity.magnitude);
 
+        // look at mouse
         Vector3 dir = Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position);
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
+        // add ourselves to the heat map
         gbb.AddHeat(transform.position);
-
-        //transform.LookAt(Camera.main.ScreenToWorldPoint(mousePos));
     }
 }

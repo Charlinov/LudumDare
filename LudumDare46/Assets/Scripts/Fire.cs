@@ -40,7 +40,6 @@ public class Fire : MonoBehaviour
 
                 // generate chance to light
                 float rand = Random.Range(0f, 1f);
-                Debug.Log(rand * fireRadius / distToLightable);
                 if(rand * fireRadius / distToLightable > 1)
                 {
                     hit.transform.GetComponent<Lightable>().LightFire();

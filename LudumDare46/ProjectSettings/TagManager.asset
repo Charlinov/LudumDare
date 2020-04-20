@@ -10,6 +10,7 @@ TagManager:
   - HidingSpot
   - FireFighter
   - Stairs
+  - GC
   layers:
   - Default
   - TransparentFX
