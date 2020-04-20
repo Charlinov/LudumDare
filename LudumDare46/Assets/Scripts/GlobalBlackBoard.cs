@@ -14,6 +14,8 @@ public class GlobalBlackBoard : MonoBehaviour
 
     public Transform player;
 
+    private Pathfinding pf;
+
     private List<Transform> firePositions = new List<Transform>();
     // Start is called before the first frame update
     void Start()
@@ -24,6 +26,24 @@ public class GlobalBlackBoard : MonoBehaviour
             for (int j = 0; j < heatMapSize; j++)
             {
                 heatMap[i,j] = 0;
+            }
+        }
+
+        pf = new Pathfinding(50, 50);
+
+        for (int i = 0; i < 50; i++)
+        {
+            for (int j = 0; j < 50; j++)
+            {
+                RaycastHit2D[] hits = Physics2D.BoxCastAll(gridToWorldSpacePF(new Vector3(i, j,0)), new Vector2(0.7f, 0.7f), 360, new Vector2(0,0), 0.7f);
+                foreach (var obj in hits)
+                {
+                    if (obj.transform.CompareTag("Wall"))
+                    {
+                        pf.SetUnwalkable(i, j);
+                        Debug.Log("WALL");
+                    }
+                }
             }
         }
     }
@@ -90,9 +110,9 @@ public class GlobalBlackBoard : MonoBehaviour
         return nearestFire;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
-        for (int i = 0; i < heatMapSize; i++)
+        /*for (int i = 0; i < heatMapSize; i++)
         {
             for (int j = 0; j < heatMapSize; j++)
             {
@@ -113,6 +133,25 @@ public class GlobalBlackBoard : MonoBehaviour
 
                 Gizmos.DrawWireCube(gridToWorldSpace(new Vector3(i, j)), new Vector3(1, 1));
             }
+        }*/
+
+        if(pf != null)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                for (int j = 0; j < 50; j++)
+                {
+                    if(pf.isWalkable(i,j))
+                    {
+                        Gizmos.color = Color.red;
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.green;
+                    }
+                    Gizmos.DrawWireCube(gridToWorldSpacePF(new Vector3(i, j)), new Vector3(1, 1));
+                }
+            }
         }
     }
 
@@ -126,11 +165,31 @@ public class GlobalBlackBoard : MonoBehaviour
         return gridSpace;
     }
 
+    public Vector3 worldToGridSpacePF(Vector3 worldSpace)
+    {
+        Vector3 gridSpace;
+        gridSpace.x = (int)(worldSpace.x + 50 / 2);
+        gridSpace.y = (int)(worldSpace.y + 50 / 2);
+        gridSpace.z = 0;
+
+        return gridSpace;
+    }
+
     private Vector3 gridToWorldSpace(Vector3 gridSpace)
     {
         Vector3 worldSpace;
         worldSpace.x = gridSpace.x - heatMapSize / 2;
         worldSpace.y = gridSpace.y - heatMapSize / 2;
+        worldSpace.z = 0;
+
+        return worldSpace;
+    }
+
+    private Vector3 gridToWorldSpacePF(Vector3 gridSpace)
+    {
+        Vector3 worldSpace;
+        worldSpace.x = (gridSpace.x - 50 / 2);
+        worldSpace.y = (gridSpace.y - 50 / 2);
         worldSpace.z = 0;
 
         return worldSpace;

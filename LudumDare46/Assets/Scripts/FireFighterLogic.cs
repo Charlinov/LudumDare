@@ -9,6 +9,9 @@ public class FireFighterLogic : MonoBehaviour
     private Transform closestFire;
     public float fireSpotRadius;
 
+    private Vector3 target;
+    private Vector3 prevFrameTarget;
+    private List<Vector3> currPath = new List<Vector3>();
     private Vector2 moveDir;
     private Rigidbody2D rb;
 
@@ -64,6 +67,9 @@ public class FireFighterLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        prevFrameTarget = target;
+
+
         if(state == States.IDLE)
         {
             // do a raycast
@@ -94,18 +100,17 @@ public class FireFighterLogic : MonoBehaviour
             // patrol
 
             // get next point if we're at the current one
-            if(Vector2.Distance(transform.position, PatrolRoute[patrolIndex].position) < 1)
+            Debug.Log(Vector2.Distance(gbb.worldToGridSpacePF(transform.position), gbb.worldToGridSpacePF(PatrolRoute[patrolIndex].position)));
+            if(Vector2.Distance(gbb.worldToGridSpacePF(transform.position), gbb.worldToGridSpacePF(PatrolRoute[patrolIndex].position)) <= 2)
             {
                 patrolIndex++;
                 if (patrolIndex >= PatrolRoute.Count)
                     patrolIndex = 0;
+
+                Debug.Log(patrolIndex);
             }
 
-            Debug.DrawLine(transform.position, PatrolRoute[patrolIndex].position, Color.blue);
-
-            moveDir = (PatrolRoute[patrolIndex].position - transform.position).normalized;
-            LookAtPoint(PatrolRoute[patrolIndex].position);
-
+            target = PatrolRoute[patrolIndex].position;
         }
         else if (state == States.FIREFIGHTING)
         {
@@ -114,8 +119,7 @@ public class FireFighterLogic : MonoBehaviour
                 state = States.IDLE;
             else
             {
-                moveDir = (closestFire.position - transform.position).normalized;
-                LookAtPoint(closestFire.position);
+                target = closestFire.position;
                 if (Vector2.Distance(closestFire.position, transform.position) < extinguishRadius)
                 {
                     if(!extinguishing)
@@ -133,9 +137,7 @@ public class FireFighterLogic : MonoBehaviour
                 {
                     Debug.DrawLine(transform.position, player.position, Color.magenta);
                     state = States.CHASE;
-                    moveDir = (player.position - transform.position).normalized;
-
-                    LookAtPoint(player.position);
+                    target = player.position;
 
                     Debug.Log(Vector2.Distance(transform.position, player.position));
                     if(Vector2.Distance(transform.position, player.position) < playerCatchRadius)
@@ -157,6 +159,31 @@ public class FireFighterLogic : MonoBehaviour
 
                 state = States.IDLE;
             }
+        }
+
+        if(target != prevFrameTarget)
+        {
+            currPath = Pathfinding.sInstance.FindPath(transform.position, target);
+        }
+
+
+        moveDir = new Vector2(0, 0);
+
+        if (currPath.Count > 0)
+        {
+            moveDir = currPath[0] - transform.position;
+            LookAtPoint(currPath[0]);
+            if (Vector2.Distance(transform.position, currPath[0]) < 0.5)
+            {
+                currPath.RemoveAt(0);
+            }
+        }
+
+        Vector3 start = transform.position;
+        foreach (Vector3 point in currPath)
+        {
+            Debug.DrawLine(start, point);
+            start = point;
         }
 
         rb.velocity = moveDir * Speed;
