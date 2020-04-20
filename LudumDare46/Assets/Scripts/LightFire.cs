@@ -9,6 +9,7 @@ public class LightFire : MonoBehaviour
     public GameObject canvas;
     public Animator anim;
     public TopDownMovement tdm;
+    private AudioSource Audio;
 
     private float tdmSpeed = 0;
 
@@ -23,7 +24,7 @@ public class LightFire : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Audio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -71,12 +72,14 @@ public class LightFire : MonoBehaviour
                 lighting = false;
                 cancelled = false;
                 lightingObject = null;
+                Audio.Stop();
             }
             else if (lightTimer < 0)
             {
                 lighting = false;
                 cancelled = false;
                 lightingObject = null;
+                Audio.Stop();
             }
             else
             {
@@ -91,6 +94,7 @@ public class LightFire : MonoBehaviour
             lighting = true;
             cancelled = false;
             anim.SetTrigger("LightFire");
+            Audio.Play();
         }
     }
 

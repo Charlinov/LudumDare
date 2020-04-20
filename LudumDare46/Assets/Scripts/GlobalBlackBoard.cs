@@ -17,9 +17,17 @@ public class GlobalBlackBoard : MonoBehaviour
     private Pathfinding pf;
 
     private List<Transform> firePositions = new List<Transform>();
+
+    private AudioSource Audio;
+
+
+    public bool showHeatMap = false;
+    public bool showAStarMap = false;
     // Start is called before the first frame update
     void Start()
     {
+        Audio = GetComponent<AudioSource>();
+
         heatMap = new float[heatMapSize, heatMapSize];
         for (int i = 0; i < heatMapSize; i++)
         {
@@ -63,7 +71,8 @@ public class GlobalBlackBoard : MonoBehaviour
                 heatMap[i, j] = Mathf.Max(0.0f, heatMap[i,j] - (Time.deltaTime * heatMapFalloff));
             }
         }
-        scoreDelta *= Time.deltaTime;
+
+        Audio.volume = Mathf.Min(1, scoreDelta/100);
     }
 
     public void AddHeat(Vector3 position)
@@ -112,44 +121,50 @@ public class GlobalBlackBoard : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        /*for (int i = 0; i < heatMapSize; i++)
+        if (showHeatMap)
         {
-            for (int j = 0; j < heatMapSize; j++)
+            for (int i = 0; i < heatMapSize; i++)
             {
-                
-
-                if (heatMap != null)
+                for (int j = 0; j < heatMapSize; j++)
                 {
-                    Color color = new Color();
-                    color.r = heatMap[i, j];
-                    color.g = Map(heatMap[i,j], 0, 1, 1, 0);
-                    color.b = 0;
-                    color.a = 1;
 
-                    Gizmos.color = color;
-                }
-                else
-                    Gizmos.color = Color.grey;
 
-                Gizmos.DrawWireCube(gridToWorldSpace(new Vector3(i, j)), new Vector3(1, 1));
-            }
-        }*/
-
-        if(pf != null)
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                for (int j = 0; j < 50; j++)
-                {
-                    if(pf.isWalkable(i,j))
+                    if (heatMap != null)
                     {
-                        Gizmos.color = Color.red;
+                        Color color = new Color();
+                        color.r = heatMap[i, j];
+                        color.g = Map(heatMap[i, j], 0, 1, 1, 0);
+                        color.b = 0;
+                        color.a = 1;
+
+                        Gizmos.color = color;
                     }
                     else
+                        Gizmos.color = Color.grey;
+
+                    Gizmos.DrawWireCube(gridToWorldSpace(new Vector3(i, j)), new Vector3(1, 1));
+                }
+            }
+        }
+
+        if (showAStarMap)
+        {
+            if (pf != null)
+            {
+                for (int i = 0; i < 50; i++)
+                {
+                    for (int j = 0; j < 50; j++)
                     {
-                        Gizmos.color = Color.green;
+                        if (pf.isWalkable(i, j))
+                        {
+                            Gizmos.color = Color.red;
+                        }
+                        else
+                        {
+                            Gizmos.color = Color.green;
+                        }
+                        Gizmos.DrawWireCube(gridToWorldSpacePF(new Vector3(i, j)), new Vector3(1, 1));
                     }
-                    Gizmos.DrawWireCube(gridToWorldSpacePF(new Vector3(i, j)), new Vector3(1, 1));
                 }
             }
         }

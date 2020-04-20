@@ -15,6 +15,9 @@ public class Fire : MonoBehaviour
     public float fireLifeTime = 10f;
     private float fireLifeTimer;
 
+    public bool extinguishParent = true;
+    public bool extinguishSelf = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +50,7 @@ public class Fire : MonoBehaviour
             }
         }
 
-        fireRadius = Mathf.Min(1.7f, fireRadius + (Time.deltaTime * fireGrowMod));
+        fireRadius = Mathf.Min(2f, fireRadius + (Time.deltaTime * fireGrowMod));
         transform.localScale = new Vector3(fireRadius, fireRadius, 1f);
 
         fireLifeTimer -= Time.deltaTime;
@@ -66,9 +69,13 @@ public class Fire : MonoBehaviour
 
     public void Burn()
     {
-        gbb.RemoveFire(transform);
-        transform.parent.GetComponent<Lightable>().Extinguish();
-        Destroy(gameObject);
+        if (extinguishSelf)
+        {
+            gbb.RemoveFire(transform);
+            if (extinguishParent)
+                transform.parent.GetComponent<Lightable>().Extinguish();
+            Destroy(gameObject);
+        }
     }
 
     private void OnDrawGizmosSelected()

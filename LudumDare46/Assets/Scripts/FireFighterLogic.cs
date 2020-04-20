@@ -39,6 +39,7 @@ public class FireFighterLogic : MonoBehaviour
 
 
     public Animator anim;
+    private AudioSource Audio;
 
     enum States
     {
@@ -62,6 +63,8 @@ public class FireFighterLogic : MonoBehaviour
         }
 
         GetClosestPointOnPath();
+
+        Audio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -169,22 +172,30 @@ public class FireFighterLogic : MonoBehaviour
 
         moveDir = new Vector2(0, 0);
 
-        if (currPath.Count > 0)
+        if(currPath != null)
         {
-            moveDir = currPath[0] - transform.position;
-            LookAtPoint(currPath[0]);
-            if (Vector2.Distance(transform.position, currPath[0]) < 0.5)
+            if (currPath.Count > 0)
             {
-                currPath.RemoveAt(0);
+                moveDir = currPath[0] - transform.position;
+                LookAtPoint(currPath[0]);
+                if (Vector2.Distance(transform.position, currPath[0]) < 0.5)
+                {
+                    currPath.RemoveAt(0);
+                }
+            }
+
+            Vector3 start = transform.position;
+            foreach (Vector3 point in currPath)
+            {
+                Debug.DrawLine(start, point);
+                start = point;
             }
         }
-
-        Vector3 start = transform.position;
-        foreach (Vector3 point in currPath)
+        else
         {
-            Debug.DrawLine(start, point);
-            start = point;
+            moveDir = new Vector2(0, 0);
         }
+        
 
         rb.velocity = moveDir * Speed;
         anim.SetFloat("Speed", rb.velocity.magnitude);
@@ -223,12 +234,14 @@ public class FireFighterLogic : MonoBehaviour
         anim.SetTrigger("Extinguish");
         Debug.Log("Started extinguishing");
         moveDir = new Vector2(0, 0);
+        Audio.Play();
         yield return new WaitForSeconds(1f);
         if(closestFire)
         {
             closestFire.GetComponent<Fire>().Extinguish();
             Debug.Log("Extinguished ONE fire");
         }
+        Audio.Stop();
         extinguishing = false;
         state = States.IDLE;
     }
